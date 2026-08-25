@@ -1,0 +1,123 @@
+"""Command-line entry point.
+
+Examples:
+    python -m outbound_engine.cli add-target --name "Jane Doe" --type person \\
+        --x-handle janedoe --keywords "raised seed" "hiring"
+    python -m outbound_engine.cli add-repo ~/code/my-product
+    python -m outbound_engine.cli run
+    python -m outbound_engine.cli watch --interval-hours 24
+"""
+
+from __future__ import annotations
+
+import argparse
+import logging
+import sys
+
+from outbound_engine.models import Target
+from outbound_engine.storage import Storage
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+logger = logging.getLogger("outbound_engine.cli")
+
+
+def cmd_add_target(args: argparse.Namespace) -> None:
+    store = Storage()
+    store.upsert_target(
+        Target(
+            name=args.name,
+            type=args.type,
+            keywords=args.keywords or [],
+            linkedin_handle=args.linkedin_handle,
+            x_handle=args.x_handle,
+            notes=args.notes,
+        )
+    )
+    print(f"Tracking {args.name} ({args.type}).")
+
+
+def cmd_list_targets(args: argparse.Namespace) -> None:
+    store = Storage()
+    targets = store.list_targets()
+    if not targets:
+        print("No targets tracked yet.")
+        return
+    for t in targets:
+        handles = []
+        if t.linkedin_handle:
+            handles.append(f"linkedin={t.linkedin_handle}")
+        if t.x_handle:
+            handles.append(f"x={t.x_handle}")
+        print(f"- {t.name} ({t.type}) {' '.join(handles)}")
+
+
+def cmd_remove_target(args: argparse.Namespace) -> None:
+    store = Storage()
+    removed = store.remove_target(args.name)
+    print(f"Removed {args.name}." if removed else f"No such target: {args.name}")
+
+
+def cmd_add_repo(args: argparse.Namespace) -> None:
+    store = Storage()
+    store.add_repo(args.path)
+    print(f"Watching {args.path} for workspace context.")
+
+
+def cmd_run(args: argparse.Namespace) -> None:
+    from outbound_engine.digest import run_daily_digest
+
+    brief = run_daily_digest()
+    print(f"Generated {len(brief.recommendations)} recommendation(s).")
+    for rec in brief.recommendations:
+        print(f"  - [{rec.priority}] {rec.target_name}: {rec.recommended_action}")
+
+
+def cmd_watch(args: argparse.Namespace) -> None:
+    from outbound_engine.scheduler import run_forever
+
+    run_forever(interval_hours=args.interval_hours)
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="outbound-engine")
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    p_add = sub.add_parser("add-target", help="Track a person or company")
+    p_add.add_argument("--name", required=True)
+    p_add.add_argument("--type", choices=["person", "company"], required=True)
+    p_add.add_argument("--keywords", nargs="*", default=[])
+    p_add.add_argument("--linkedin-handle")
+    p_add.add_argument("--x-handle")
+    p_add.add_argument("--notes")
+    p_add.set_defaults(func=cmd_add_target)
+
+    p_list = sub.add_parser("list-targets", help="List tracked targets")
+    p_list.set_defaults(func=cmd_list_targets)
+
+    p_rm = sub.add_parser("remove-target", help="Stop tracking a target")
+    p_rm.add_argument("--name", required=True)
+    p_rm.set_defaults(func=cmd_remove_target)
+
+    p_repo = sub.add_parser("add-repo", help="Watch a local git repo for workspace context")
+    p_repo.add_argument("path")
+    p_repo.set_defaults(func=cmd_add_repo)
+
+    p_run = sub.add_parser("run", help="Run one gather+brief cycle now")
+    p_run.set_defaults(func=cmd_run)
+
+    p_watch = sub.add_parser("watch", help="Run continuously on a schedule")
+    p_watch.add_argument("--interval-hours", type=float, default=24.0)
+    p_watch.set_defaults(func=cmd_watch)
+
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    args.func(args)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

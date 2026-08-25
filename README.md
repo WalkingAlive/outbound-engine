@@ -1,1 +1,134 @@
 # outbound-engine
+
+A proactive recommendation-and-writing agent for outbound sales. It watches
+news, X (Twitter), and (optionally) LinkedIn for signals about the people and
+companies you're tracking, cross-references them with what you're actually
+working on, and hands you a prioritized daily brief with ready-to-send draft
+messages — grounded in real, cited signals, never generic mail-merge copy.
+
+## How it works
+
+```
+targets (people/companies you track)
+        │
+        ▼
+ connectors/  ──►  news (Google News RSS)
+                    x_twitter (official X API v2)
+                    linkedin (manual export, or your own compliant provider)
+                    web (single-page fetch, robots.txt-respecting)
+                    workspace (local git activity = "what I'm working on")
+        │
+        ▼
+   storage.py (SQLite: targets, seen signals, brief history — dedupes so
+               the same news item never surfaces twice)
+        │
+        ▼
+ agent/outbound_agent.py  ──►  Claude (the "outbound specialist")
+   1. exploratory pass: agent can pull extra context via a read_url tool
+   2. structured pass: client.messages.parse() → a typed DailyBrief
+        │
+        ▼
+  digest.py → output/brief-*.md  +  saved in SQLite
+```
+
+The "fine-tuning" is a carefully written system prompt
+(`agent/prompts.py`), not a literally fine-tuned model — that's a deliberate
+choice: the persona, judgment calls, and house style live in an editable,
+version-controlled prompt instead of a training run, which is far cheaper to
+iterate on for a task like this. If you outgrow it, `agent/outbound_agent.py`
+is the only place that would need to change to point at a fine-tuned model
+ID.
+
+## Setup
+
+```bash
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env   # fill in ANTHROPIC_API_KEY and OUTBOUND_ENGINE_USER_NAME
+```
+
+Everything else in `.env` is optional and each connector degrades gracefully
+if unconfigured (news always works with no key; X and LinkedIn just get
+skipped for a target until you wire them up).
+
+## Usage
+
+```bash
+# Track targets
+python -m outbound_engine.cli add-target --name "Jane Doe" --type person \
+  --x-handle janedoe --keywords "raised seed" "hiring GTM" \
+  --notes "Warm intro via Alex; evaluating outbound tooling"
+
+python -m outbound_engine.cli add-target --name "Acme Corp" --type company
+
+# Point it at your own repos so drafts can reference real current work
+python -m outbound_engine.cli add-repo ~/code/my-product
+
+# One-off run → writes output/brief-<timestamp>.md
+python -m outbound_engine.cli run
+
+# Or run continuously (long-lived process, e.g. in a container)
+python -m outbound_engine.cli watch --interval-hours 24
+```
+
+For most deployments, prefer a cron job / systemd timer calling
+`python -m outbound_engine.cli run` over `watch` — simpler, no long-lived
+process to babysit:
+
+```cron
+0 8 * * * cd /path/to/outbound-engine && .venv/bin/python -m outbound_engine.cli run
+```
+
+## Connectors
+
+| Connector | Needs | Notes |
+|---|---|---|
+| `news` | nothing | Google News RSS search per target. No API key. |
+| `x_twitter` | `X_BEARER_TOKEN` | Official X API v2 (`api.x.com`) — user timeline + recent search. |
+| `linkedin` | nothing, for manual ingest | `ingest_export()` reads a JSON/CSV you exported or pasted yourself. See below. |
+| `linkedin` (provider) | `LINKEDIN_PROVIDER_MODULE` | Adapter interface for a *compliant, licensed* third-party LinkedIn data provider you have a contract with. |
+| `web` | nothing | Single-page fetch + text extraction, checks `robots.txt` first. |
+| `workspace` | nothing | `git log` across repos you register with `add-repo`, as "what I'm working on" context. |
+
+### Why no LinkedIn scraper
+
+LinkedIn's Terms of Service prohibit automated scraping, and its public API
+doesn't offer general "watch any profile's activity" access — that's
+restricted to specific partner programs. Rather than build something that
+logs into linkedin.com or drives a headless browser to get around that (which
+would also just get your account banned), this project supports two
+compliant paths instead:
+
+1. **Manual export/paste** (`linkedin.ingest_export`) — for posts you already
+   have lawful access to (something you copied yourself, or exported via a
+   tool you use interactively).
+2. **Bring your own licensed provider** — implement
+   `outbound_engine.connectors.linkedin.LinkedInProvider` against a data
+   provider you have a commercial agreement with, and point
+   `LINKEDIN_PROVIDER_MODULE` at it.
+
+### Adding a new connector
+
+Any function that returns `list[outbound_engine.models.Signal]` works. Wire
+it into `agent.outbound_agent.gather_signals()`. Good next candidates: Slack
+(mentions of a target, or more "what I'm working on" context), a calendar
+(upcoming meetings with a target), Notion/CRM (deal stage, notes).
+
+## Data & privacy
+
+- All state lives locally in SQLite (`OUTBOUND_ENGINE_DATA_DIR`, default
+  `./data/`) — nothing is sent anywhere except to Anthropic's API (for
+  generating the brief) and to the connectors you've configured (for
+  fetching public signals).
+- Signals are deduped by URL so the same story doesn't get re-surfaced every
+  run; `storage.Storage.unsurfaced_signals()` is the backlog the next run
+  will consider.
+- Review every draft before sending. This tool proposes outreach grounded in
+  cited signals; it does not send anything itself.
+
+## Development
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
