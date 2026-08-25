@@ -64,7 +64,16 @@ def cmd_add_repo(args: argparse.Namespace) -> None:
 
 
 def cmd_run(args: argparse.Namespace) -> None:
+    from outbound_engine.config import settings
     from outbound_engine.digest import run_daily_digest
+
+    if not settings.anthropic_api_key:
+        print(
+            "No ANTHROPIC_API_KEY configured. Set it in .env (see .env.example), "
+            "or `export ANTHROPIC_API_KEY=...`, then retry.",
+            file=sys.stderr,
+        )
+        raise SystemExit(1)
 
     brief = run_daily_digest()
     print(f"Generated {len(brief.recommendations)} recommendation(s).")
