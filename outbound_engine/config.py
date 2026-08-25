@@ -36,6 +36,13 @@ class Settings:
     )
     workspace_git_days: int = int(os.environ.get("OUTBOUND_ENGINE_GIT_DAYS", "7"))
 
+    # Slack DM interface (see README "Slack setup"). All three are required
+    # for the bot; slack_bot_token + slack_allowed_user_id alone are enough
+    # for one-way brief delivery from `run`/`watch` without the chat bot.
+    slack_bot_token: str | None = os.environ.get("SLACK_BOT_TOKEN")  # xoxb-...
+    slack_app_token: str | None = os.environ.get("SLACK_APP_TOKEN")  # xapp-..., Socket Mode
+    slack_allowed_user_id: str | None = os.environ.get("SLACK_ALLOWED_USER_ID")
+
 
 settings = Settings()
 

@@ -29,6 +29,9 @@ targets (people/companies you track)
         │
         ▼
   digest.py → output/brief-*.md  +  saved in SQLite
+        │
+        ▼
+  notifiers/slack.py → your Slack DM (optional; never a channel)
 ```
 
 The "fine-tuning" is a carefully written system prompt
@@ -79,6 +82,62 @@ process to babysit:
 0 8 * * * cd /path/to/outbound-engine && .venv/bin/python -m outbound_engine.cli run
 ```
 
+## Slack
+
+There are two independent pieces — use either or both:
+
+- **Brief delivery to your DM** — `run`/`watch` push the finished brief
+  straight to your Slack DM (in addition to the markdown file) whenever
+  `SLACK_BOT_TOKEN` + `SLACK_ALLOWED_USER_ID` are set. No bot process needs
+  to be running for this; a cron job calling `run` is enough.
+- **Two-way chat** — `python -m outbound_engine.cli slack` starts a bot that
+  you DM directly. Send it the same commands as the CLI and it replies in
+  the thread:
+
+  ```
+  add-target --name "Jane Doe" --type person --x-handle janedoe --keywords "seed round" "hiring"
+  list-targets
+  run
+  ```
+
+  `run` triggers a live gather-and-brief cycle and posts the result back
+  into the DM as formatted blocks. Add `--interval-hours 24` to also push a
+  brief proactively on a cadence from the same process, so one running
+  process covers both "ping me daily" and "let me ask on demand."
+
+Everything only ever happens in your **direct message** with the bot — it
+never posts to a channel, and it ignores DMs from anyone but
+`SLACK_ALLOWED_USER_ID`. This bot spends your Anthropic/X API quota and can
+add tracked targets, so treat it like it has your credentials (because it
+does) — don't skip setting `SLACK_ALLOWED_USER_ID`.
+
+### Slack setup
+
+1. Go to <https://api.slack.com/apps> → **Create New App** → **From scratch**.
+   Name it (e.g. "Outbound Engine"), pick your workspace.
+2. **Socket Mode** (left sidebar) → toggle it on. When prompted, generate an
+   app-level token with the `connections:write` scope → this is
+   `SLACK_APP_TOKEN` (starts with `xapp-`).
+3. **OAuth & Permissions** → under **Bot Token Scopes**, add:
+   `chat:write`, `im:write`, `im:history`, `users:read`.
+   Click **Install to Workspace** at the top of that page → copy the
+   **Bot User OAuth Token** → this is `SLACK_BOT_TOKEN` (starts with `xoxb-`).
+4. **Event Subscriptions** → toggle on → under **Subscribe to bot events**,
+   add `message.im`. Save.
+5. Find your own Slack user ID: in Slack, click your profile picture → **…**
+   → **Copy member ID**. This is `SLACK_ALLOWED_USER_ID` (looks like `U0123ABC456`).
+6. Put all three in `.env`, then DM the app's bot user in Slack (find it
+   under **Apps** in your sidebar, or search its name) — send `help` to
+   confirm it responds — and run:
+
+   ```bash
+   python -m outbound_engine.cli slack --interval-hours 24
+   ```
+
+Keep this process running wherever you'd run any long-lived bot (your
+machine, a small VM, a container) — Socket Mode means it just needs
+outbound internet, no public URL or inbound port.
+
 ## Connectors
 
 | Connector | Needs | Notes |
@@ -111,8 +170,9 @@ compliant paths instead:
 
 Any function that returns `list[outbound_engine.models.Signal]` works. Wire
 it into `agent.outbound_agent.gather_signals()`. Good next candidates: Slack
-(mentions of a target, or more "what I'm working on" context), a calendar
-(upcoming meetings with a target), Notion/CRM (deal stage, notes).
+*as a signal source* (mentions of a target in your own workspace — separate
+from the Slack DM delivery/chat interface above), a calendar (upcoming
+meetings with a target), Notion/CRM (deal stage, notes).
 
 ## Data & privacy
 

@@ -29,11 +29,20 @@ def run_forever(interval_hours: float = 24.0) -> None:
     scheduler = BlockingScheduler()
 
     def _job() -> None:
+        from outbound_engine.notifiers import slack as slack_notifier
+
         try:
             brief = run_daily_digest()
             logger.info("Digest run complete: %d recommendation(s).", len(brief.recommendations))
         except Exception:
             logger.exception("Digest run failed")
+            return
+
+        if slack_notifier.is_configured():
+            try:
+                slack_notifier.post_brief(brief)
+            except Exception:
+                logger.exception("Generated brief but failed to post it to Slack")
 
     scheduler.add_job(_job, "interval", hours=interval_hours)
     logger.info("Running once immediately, then every %.1f hours...", interval_hours)

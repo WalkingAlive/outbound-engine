@@ -79,12 +79,31 @@ def cmd_run(args: argparse.Namespace) -> None:
     print(f"Generated {len(brief.recommendations)} recommendation(s).")
     for rec in brief.recommendations:
         print(f"  - [{rec.priority}] {rec.target_name}: {rec.recommended_action}")
+    _maybe_post_to_slack(brief)
 
 
 def cmd_watch(args: argparse.Namespace) -> None:
     from outbound_engine.scheduler import run_forever
 
     run_forever(interval_hours=args.interval_hours)
+
+
+def cmd_slack(args: argparse.Namespace) -> None:
+    from outbound_engine.slack_app import run_socket_mode
+
+    run_socket_mode(background_interval_hours=args.interval_hours)
+
+
+def _maybe_post_to_slack(brief) -> None:
+    from outbound_engine.notifiers import slack as slack_notifier
+
+    if not slack_notifier.is_configured():
+        return
+    try:
+        slack_notifier.post_brief(brief)
+        print("Posted to your Slack DM.")
+    except Exception as e:  # noqa: BLE001 - the brief is already saved; a Slack hiccup shouldn't fail the run
+        print(f"Generated the brief but failed to post it to Slack: {e}", file=sys.stderr)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -117,6 +136,15 @@ def build_parser() -> argparse.ArgumentParser:
     p_watch = sub.add_parser("watch", help="Run continuously on a schedule")
     p_watch.add_argument("--interval-hours", type=float, default=24.0)
     p_watch.set_defaults(func=cmd_watch)
+
+    p_slack = sub.add_parser("slack", help="Start the Slack DM interface (Socket Mode)")
+    p_slack.add_argument(
+        "--interval-hours",
+        type=float,
+        default=None,
+        help="Also push a brief to your DM on this cadence, in addition to on-demand commands",
+    )
+    p_slack.set_defaults(func=cmd_slack)
 
     return parser
 
