@@ -1,133 +1,174 @@
 # Shopify ESP Review Research: LTV.ai Campaign Angles
 
-**Revision note:** This replaces the earlier draft, which used one generic complaint list
-repeated across every ESP. Per direction, this version gives each ESP its own distinct,
-sourced problem, filtered to what's actually relevant to LTV.ai, not every complaint reviewers
-raise, only the ones a set of AI agents running proactivity, segmentation, and deliverability
-actually addresses.
+**Revision note (methodology upgrade):** The earlier version of this doc, and an intermediate
+one, leaned on a single review or thread per ESP and generalized from it. This version was
+re-researched to a stricter bar: a theme is only reported if it recurs across **at least 3
+separate, distinct reviewers**, ideally on more than one platform, not one person's complaint
+treated as a trend. Where that bar couldn't be cleared, the finding says so rather than forcing
+it. See the methodology note at the bottom for exactly what was and wasn't verified this pass.
 
 **What LTV.ai is, for reference:** a set of AI agents that runs a brand's email (and SMS)
 program end to end: studying data, generating campaign ideas, designing and writing them,
-building the audience, sending, and learning from each send. Three product hooks, each its own
-cadence: **Proactivity** (agents build about 5 ready campaigns overnight, filling calendar gaps
-and catching windows a team would miss), **Segmentation** (an Audience Agent auto-picks the
-best of seven strategies per campaign), **Deliverability** (ISP-specific rendering and send
-timing, optimized for the primary inbox, not just "sent"). Klaviyo gets separate treatment:
-campaigns send through the brand's existing Klaviyo account, positioned as an add-on, not a
-replacement.
+building the audience, sending, and learning from each send. Three product hooks: **Proactivity**
+(agents build about 5 ready campaigns overnight, filling calendar gaps and catching windows a
+team would miss), **Segmentation** (an Audience Agent auto-picks the best of seven strategies
+per campaign), **Deliverability** (ISP-specific rendering and send timing, optimized for the
+primary inbox, not just "sent"). Klaviyo gets separate treatment: campaigns send through the
+brand's existing Klaviyo account, positioned as an add-on, not a replacement.
 
-Each ESP below gets **one** problem, the one with the strongest evidence and the tightest
-link to a hook, not a shared checklist.
+Note: under this stricter bar, Postscript's and Attentive's problems changed from the prior
+draft (the earlier "sends that fail silently" and "cost structure" angles didn't hold up as
+distinct, verifiable review-recurring themes once checked properly, and the cost angle was
+pricing-adjacent besides). Both now land on Segmentation, same as Omnisend, because that's
+where the recurring, multi-reviewer evidence actually is.
 
 ---
 
-## Klaviyo: the inbox-placement blind spot
+## Klaviyo: delivered doesn't mean seen
 
-**The problem:** Klaviyo's own community and help center openly document that a large share of
-campaign sends land in Gmail's Promotions tab rather than Primary, and that Klaviyo itself
-doesn't give real-time visibility into DNS health, inbox placement, or blocklist status.
-Merchants are pointed to third-party seed-list tools (e.g. GlockApps) to even find out. Gmail
-also enforces hard thresholds (0.1% spam-complaint target, 0.3% block risk) that most merchants
-have no live signal on inside Klaviyo.
-
-This isn't a "Klaviyo is bad" story, it's a strong, well-run tool with a structural blind spot:
-it optimizes for send, not for where the send lands.
+**The problem:** Klaviyo confirms sends as "delivered," but multiple reviewers describe getting
+no visibility into whether mail actually lands in the inbox versus spam or Promotions, only
+discovering a problem indirectly, through an engagement drop or a customer complaint. This
+recurred across separate G2 reviewers and a Capterra reviewer, independent of each other: one
+G2 reviewer wrote that Klaviyo's reports "SAY the emails are being delivered, but many of them,
+especially to Gmail addresses, are going to spam"; a second G2 reviewer flagged that "some long
+time customers have not been receiving our emails for some reason"; a third cited "no
+confidence in deliverability" as a reason to leave the platform; a Capterra reviewer (a paid
+media specialist with 2+ years on the platform) wrote that mail goes to "customers' spam box,
+and Klaviyo can't analyze this and optimize the workflow." Independent deliverability guides
+corroborate the mechanism: Klaviyo doesn't report inbox-versus-spam-folder placement natively.
 
 **Why it matters to LTV.ai:** maps directly to the Deliverability hook, ISP-specific rendering
-and per-customer send timing built to optimize for the primary inbox, not just delivery. It
-also pairs naturally with the Klaviyo positioning: the brand keeps Klaviyo and its sending
-reputation exactly as is, nothing to migrate. The angle is "your campaigns already go out, the
-question is whether they're being seen," not a switch pitch.
+and per-customer send timing built to optimize for landing in the primary inbox, not just
+"sent." Pairs naturally with the Klaviyo positioning: the brand keeps Klaviyo and its sending
+reputation exactly as is, nothing to migrate. The angle is "delivered and seen aren't the same
+thing, and you don't currently have a way to tell them apart," not a switch pitch.
 
-**Sources:**
-- [Klaviyo Community, daily campaign emails landing in Promotions tab](https://community.klaviyo.com/analytics-and-deliverability-72/seeking-advice-daily-campaign-emails-landing-in-promotions-tab-10687)
-- [Klaviyo Help Center, email deliverability FAQs](https://help.klaviyo.com/hc/en-us/articles/16425927010075)
-- [Klaviyo Help Center, troubleshooting why emails go to spam](https://help.klaviyo.com/hc/en-us/articles/12034571748251)
-- [Klaviyo Community, enhancing email deliverability](https://community.klaviyo.com/marketing-30/how-can-we-enhance-email-deliverability-15952)
+**Confidence:** medium. Four distinct reviewers across two platforms converge on the same
+mechanism, but this pass was sourced through search-engine-surfaced review snippets rather than
+fully rendered review pages (see methodology note), so treat exact wording as close paraphrase
+rather than guaranteed verbatim, and re-verify direct quotes before using them in copy.
+
+**Sources:** G2 Klaviyo Reviews (g2.com/products/klaviyo/reviews) · Capterra Klaviyo Reviews
+(capterra.com/p/156699/Klaviyo/reviews) · [Klaviyo Shopify App Store listing](https://apps.shopify.com/klaviyo-email-marketing/reviews)
 
 ---
 
-## Omnisend: segmentation without a predictive layer
+## Omnisend: segmentation you have to go dig for
 
-**The problem:** Independent comparisons (built from user experience and reviews, not vendor
-copy) consistently land on the same verdict: Omnisend covers the core ecommerce journeys and is
-faster to set up, but its segmentation is rule-based and comparatively shallow, it doesn't
-reach predictive depth like expected next order date, churn risk, or lifetime-value tiering.
-Merchants trade segmentation granularity for simplicity and multichannel coverage in one tool.
+**The problem:** Reviewers across three platforms describe segmentation as something you fight
+with rather than something the tool hands you: a G2 reviewer said segmentation "could be more
+intuitive" and described having to "dig around too much to create specific segments," unsure
+whether it was even configured correctly; a second G2 reviewer wanted clearer navigation for
+"advanced segmentation and branching"; G2's aggregated Cons summary separately lists "limited
+segmentation filters"; a TrustRadius reviewer asked for the cap on "the number of tags per
+segment" to be raised; and two distinct Capterra reviewers said "audience segment features and
+lists can be improved" and asked for "more automated segmenting options" and "more trigger and
+filter options." Worth noting: Omnisend has since shipped an AI Segment Builder (prompt-based
+segment generation), which may be narrowing this gap going forward, so this angle has a shelf
+life.
 
 **Why it matters to LTV.ai:** maps directly to the Segmentation hook. The Audience Agent
-auto-selects from seven strategies per campaign, including purchase frequency, AOV tier, and
-category affinity, which is exactly the behavioral/predictive layer Omnisend reviewers say is
-missing. The angle isn't "Omnisend's segmentation is broken," it's "your list is being split by
-static rules someone set once, not by who's actually about to buy, churn, or spend more."
+auto-selects from seven strategies per campaign with no manual filter-hunting; the angle is
+"your team shouldn't have to dig through filters and hope the segment is right," not "Omnisend's
+segmentation is broken."
 
-**Sources:**
-- [Omnisend vs Klaviyo, Maestra comparison](https://maestra.io/blog/comparisons/klaviyo-vs-omnisend)
-- [Omnisend vs Klaviyo, Hustler Marketing verdict](https://www.hustlermarketing.com/klaviyo-vs-omnisend-which-email-sms-platform-wins-for-ecommerce/)
-- [Omnisend vs Klaviyo, onsaas.me testing writeup](https://www.onsaas.me/blog/omnisend-vs-klaviyo)
+**Confidence:** medium. Five distinct reviewers across three platforms (G2 x2, Capterra x2,
+TrustRadius x1), plus an independent aggregated-Cons corroboration, but again sourced through
+search snippets rather than fully rendered pages this pass.
 
----
-
-## Postscript: sends that fail silently
-
-**The problem:** Reviews describe a reliability gap specific to Postscript: automations that
-either fail to send or send in error, and cases where merchants report being billed while
-messages weren't actually delivered, with slow support follow-up on the billing side. This is
-a different failure mode than Klaviyo's (which sends reliably but lands in the wrong tab),
-Postscript's issue is trusting that the send happened at all.
-
-**Why it matters to LTV.ai:** maps to the Deliverability hook, but on the reliability axis
-rather than inbox-placement, per-customer send timing and delivery optimization matter more,
-not less, on SMS, where there's no "Promotions tab" fallback: a failed send is just gone. The
-angle is "you're paying for messages your customers never see, with no visibility into which
-ones."
-
-**Sources:**
-- [Postscript Shopify App Store reviews](https://apps.shopify.com/postscript-sms-marketing/reviews)
-- [Postscript alternatives roundup, txtcartapp](https://txtcartapp.com/blog/best-postscript-alternatives-for-shopify-sms-marketing/)
-- [Postscript Capterra profile](https://www.capterra.com/p/199013/Postscript/)
+**Sources:** G2 Omnisend Reviews (g2.com/products/omnisend/reviews) · G2 Pros and Cons
+(g2.com/products/omnisend/reviews?qs=pros-and-cons) · Capterra Omnisend Reviews
+(capterra.com/p/153508/Omnisend/reviews) · TrustRadius Omnisend Reviews
+(trustradius.com/products/omnisend/reviews) · [Omnisend Shopify App Store listing](https://apps.shopify.com/omnisend/reviews)
 
 ---
 
-## Attentive: a cost structure that rations the calendar
+## Postscript: audiences you build one exclusion at a time
 
-**The problem:** The most consistent complaint pattern for Attentive isn't feature depth, it's
-commercial: undisclosed pricing (demo-and-negotiate rather than published rates), a base fee
-plus per-message charges, and 6 to 12 month minimum commitments, sometimes with exclusivity
-clauses. Layered on top, reported revenue frequently doesn't reconcile with Shopify or GA4, with
-limited attribution-window customization. The combined effect reviewers describe: teams get
-conservative about how often they send, because every additional campaign has a negotiated,
-opaque cost attached, and they can't fully trust the numbers that would justify sending more.
+**The problem:** Reviewers across three platforms describe the same structural limitation:
+targeting anything beyond a simple list requires manual segment-stacking. A Shopify reviewer
+("DECKED") needed a manual workaround through Postscript's own CX team just to exclude a
+subset of a send; a second Shopify reviewer asked for "more segmenting options"; a G2 reviewer
+noted there's no way to target by timezone within a single broadcast, "extra work that
+shouldn't be needed," having to build multiple segments to approximate it; a TrustRadius
+reviewer said segmentation "could be more robust," citing the specific limitation of "excluding
+only one list at a time"; and G2's aggregated Cons summary independently lists "limited
+segmentation features for campaign creation and analysis."
 
-**Why it matters to LTV.ai:** maps to the Proactivity hook, from the opposite direction than
-Klaviyo/Postscript. Those two ESPs' merchants are sending but not landing or not delivering,
-Attentive's cost structure pushes merchants toward under-sending: calendar gaps, skipped
-slow-week campaigns, missed windows. The angle is "the gaps in your calendar aren't a strategy
-problem, they're a cost-avoidance habit." That's exactly what an overnight agent filling
-calendar gaps and catching windows (a competitor move, a restock, an underused day) is built to
-counter.
+**Why it matters to LTV.ai:** maps to the Segmentation hook, the exact "manual scenario
+building" the Audience Agent removes by auto-selecting a strategy per campaign. The timezone
+example also brushes the Deliverability hook (per-customer send timing), worth keeping in mind
+if this angle gets paired with a send-timing proof point.
 
-**Sources:**
-- [Attentive Capterra reviews](https://www.capterra.com/p/179576/Attentive/reviews/)
-- [Attentive Reviews, SoftwareReviews](https://www.softwarereviews.com/products/attentive?c_id=273)
-- [Attentive Alternatives, Ringly](https://www.ringly.io/blog/attentive-alternatives)
+**Confidence:** medium. Four distinct sources across three platforms (2 Shopify, 1 G2, 1
+TrustRadius), plus an aggregated-Cons corroboration, sourced through search snippets rather
+than fully rendered pages this pass.
+
+**Sources:** [Postscript Shopify App Store reviews](https://apps.shopify.com/postscript-sms-marketing/reviews)
+· G2 Postscript Reviews (g2.com/products/postscript/reviews) · TrustRadius Postscript Reviews
+(trustradius.com/products/postscript/reviews)
 
 ---
+
+## Attentive: one message to three different kinds of customer
+
+**The problem:** Reviewers describe segmentation as manual and coarse enough that meaningfully
+different customers end up getting the same send. A Capterra reviewer wrote it's "hard to
+segment and you end up sending the same message to current customers, prospects, and winbacks
+in flows"; a second Capterra reviewer wanted to "segment the list of subscribers more" to match
+their distinct customer types; a third flagged that the segment builder has a "clear all"
+button but no equivalent "add all"; a fourth wanted Shopify-integration segmentation "expanded
+upon." G2's aggregated Cons summary separately notes "some logic choices for segments that feel
+like they are missing," and TrustRadius's aggregated Cons cites "limited... capabilities" in
+the same area.
+
+**Why it matters to LTV.ai:** maps to the Segmentation hook. Attentive users are stuck manually
+building and maintaining audience logic and still land on one message across mixed customer
+states (current, prospect, winback); the Audience Agent auto-selecting the best of seven
+strategies per campaign removes exactly that manual burden.
+
+**Confidence:** medium. Four distinct Capterra reviewers plus corroborating aggregated-Cons
+data from two more platforms (G2, TrustRadius), sourced through search snippets rather than
+fully rendered pages this pass.
+
+**Sources:** Attentive Capterra Reviews (capterra.com/p/179576/Attentive/reviews) · G2 Pros and
+Cons (g2.com/products/attentive/reviews?qs=pros-and-cons) · TrustRadius Attentive Mobile
+Reviews (trustradius.com/products/attentive-mobile/reviews) · Software Advice Attentive
+Reviews (softwareadvice.com/conversational-marketing/attentive-profile/reviews) ·
+[Attentive Shopify App Store reviews](https://apps.shopify.com/attentive/reviews)
+
+---
+
+## Methodology note: what changed and why
+
+This pass used background research agents instructed to read broadly (not stop at the first
+result) and only report a theme recurring across 3+ distinct reviewers. Partway through the
+batch, two things happened in this session: the network egress policy started returning a hard
+403 on direct fetches to review-hosting domains (apps.shopify.com, G2, and others, a policy
+denial, not a glitch, so it wasn't retried), and the session's WebSearch allowance (200 calls)
+was exhausted. The four ESPs above were researched *before* that happened and cleared the
+3+-reviewer bar via search-surfaced review content. Because direct page rendering wasn't
+available even before the block (WebFetch to these specific domains was already restricted),
+none of this pass involved opening a raw review page and reading it top to bottom, it's built
+from targeted search queries that surface individual review quotes and aggregated Pros/Cons
+data, cross-checked across platforms. That's meaningfully stronger than one cherry-picked
+review, but it's not the same as a full manual read-through, so confidence is marked medium
+throughout, and specific reviewer quotes should be spot-checked before they go into any
+customer-facing copy.
 
 ## Segment definition (who this research should turn into a list)
 
 Not "anyone using one of these four apps," that's too broad and reads as a mass competitor
-blast, which is explicitly the wrong play. Match the ESP-specific signal:
+blast. Match the ESP-specific signal:
 
 - **Klaviyo:** brands with visible send volume but detectable Promotions-tab/engagement patterns
-  (seed-inbox behavioral signal, this is already a specced play).
-- **Omnisend:** smaller/multichannel Shopify brands where Omnisend is the whole stack (not
-  paired with a separate CDP/segmentation tool).
-- **Postscript:** brands running SMS at meaningful volume (detectable send cadence) where
-  reliability complaints are more likely to bite.
-- **Attentive:** brands on Attentive with visibly sparse or bursty campaign cadence, long gaps
-  between sends, activity clustered only around major sale dates, which is the observable
-  fingerprint of "rationing the calendar."
+  (seed-inbox behavioral signal, already a specced play).
+- **Omnisend:** smaller/multichannel Shopify brands where Omnisend is the whole stack.
+- **Postscript:** brands running SMS at meaningful volume with multiple customer segments
+  (loyalty tiers, VIP, wholesale) who'd need cross-cutting targeting.
+- **Attentive:** brands with a visible mix of customer types (subscription, one-time, wholesale)
+  who would plausibly need to send different messages to each.
 
 ## Guardrails for whoever turns this into copy
 
